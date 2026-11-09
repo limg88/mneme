@@ -29,8 +29,9 @@
       <form id="question-form" class="composer">
         <label class="sr-only" for="question">Interroga la memoria</label>
         <textarea id="question" rows="2" maxlength="2000" placeholder="Cosa abbiamo deciso su…" required></textarea>
-        <div class="compose-toolbar"><label class="project-label"><span>◈</span><select id="project" aria-label="Filtra per progetto"><option value="">Tutti i progetti</option></select></label><div class="send-area"><span class="keyboard-hint">Invio per chiedere</span><button id="send" type="submit" aria-label="Invia domanda">↗</button></div></div>
+        <div class="compose-toolbar"><label class="project-label"><span>◈</span><select id="project" aria-label="Filtra per progetto"><option value="">Tutti i progetti</option></select></label><div class="send-area"><span class="keyboard-hint">Invio per chiedere</span><button id="send" type="submit" aria-label="Invia domanda" aria-describedby="availability">↗</button></div></div>
       </form>
+      <div id="availability" class="availability" role="status" aria-live="polite"></div>
       <div id="examples" class="examples" aria-label="Domande di esempio">
         <button type="button" data-question="Quali decisioni risultano per DEMO e quali motivazioni sono documentate?" class="example"><span class="example-icon">↗</span><span>Ricostruisci una decisione<small>Cosa è stato scelto, e perché</small></span><b>↗</b></button>
         <button type="button" data-question="Quali proposte per EXAMPLEB risultano ancora da confermare?" class="example"><span class="example-icon">◇</span><span>Separa proposte e decisioni<small>Le idee non sono ancora impegni</small></span><b>↗</b></button>

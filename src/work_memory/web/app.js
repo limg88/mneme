@@ -3,6 +3,7 @@
 const $ = (id) => document.getElementById(id);
 let bearer = "", pending = false, context = [], evidenceIds = [], epoch = 0;
 let cloudEnabled = false, quotaAvailable = true, loaded = false;
+let blockedReason = "Connessione alla memoria in corso…";
 const labels = {decision: "Decisione documentata", proposal: "Proposta", context: "Contesto", uncertain: "Da chiarire"};
 
 function element(tag, text, className) {
@@ -35,7 +36,13 @@ function date(value) {
 }
 function setBusy(value) {
   pending = value;
-  $("send").disabled = value || !cloudEnabled || !quotaAvailable;
+  const disabled = value || !loaded || !cloudEnabled || !quotaAvailable;
+  $("send").disabled = disabled;
+  $("send").title = value ? "Risposta in elaborazione…" : disabled ? blockedReason : "Invia domanda";
+  $("send").textContent = value ? "…" : "↗";
+  document.body.classList.toggle("is-pending", value);
+  $("question-form").setAttribute("aria-busy", String(value));
+  document.querySelector(".keyboard-hint").textContent = value ? "Risposta in corso…" : disabled ? "Invio non disponibile" : "Invio per chiedere";
   $("project").disabled = value;
   $("question").disabled = value;
   document.querySelectorAll(".example, .followups button").forEach(b => b.disabled = value);
@@ -55,6 +62,19 @@ async function loadInfo() {
     let notice = "Haiku aziendale · Ogni domanda consuma quota del piano · Copertura parziale";
     const spending = info.spending;
     quotaAvailable = spending.can_start_call !== false;
+    const availability = $("availability");
+    availability.replaceChildren();
+    blockedReason = "";
+    if (!info.enabled) {
+      blockedReason = "Generazione delle risposte disabilitata";
+      availability.append(element("strong", blockedReason), element("p", "Avvia il servizio con --allow-cloud per abilitare Haiku."));
+    } else if (!quotaAvailable) {
+      blockedReason = "Invio sospeso: budget cloud insufficiente";
+      let explanation = "Nessuna richiesta è in elaborazione.";
+      if (spending.daily_remaining !== undefined) explanation += ` Disponibili oggi: $${spending.daily_remaining.toFixed(6)}; residuo totale: $${spending.total_remaining.toFixed(6)}.`;
+      explanation += " I limiti restano invariati. Il saldo viene ricontrollato automaticamente ogni 30 secondi.";
+      availability.append(element("strong", blockedReason), element("p", explanation));
+    }
     if (spending.daily_remaining !== undefined) {
       notice += ` · Residuo stimato: $${Math.min(spending.daily_remaining, spending.total_remaining).toFixed(2)}`;
       if (!spending.can_start_call) notice += " · Budget esaurito";
@@ -64,9 +84,11 @@ async function loadInfo() {
     $("notice").textContent = notice;
     setBusy(pending);
   } catch (err) {
+    loaded = false;
+    blockedReason = err.message;
     $("connection").replaceChildren(element("i"), document.createTextNode("Da collegare"));
     $("connection").classList.add("offline");
-    $("send").disabled = true;
+    setBusy(pending);
     error(err.message);
   }
 }
@@ -206,3 +228,6 @@ $("close-evidence").addEventListener("click", () => $("evidence-dialog").close()
 $("evidence-dialog").addEventListener("click", event => { if (event.target === $("evidence-dialog")) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right) event.target.close(); } });
 $("login").addEventListener("submit", async event => { event.preventDefault(); bearer = $("token").value.trim(); $("token").value = ""; error(""); await loadInfo(); });
 loadInfo();
+setBusy(false);
+setInterval(() => { if (!pending && document.visibilityState === "visible") loadInfo(); }, 30000);
+document.addEventListener("visibilitychange", () => { if (!pending && document.visibilityState === "visible") loadInfo(); });
