@@ -682,6 +682,7 @@ AND NOT EXISTS (SELECT 1 FROM access_control.observation_blocks b
         limit: int = 50,
         offset: int = 0,
         identity_key: str | None = None,
+        observation_id: str | None = None,
     ) -> dict[str, Any]:
         limit, offset = self.bounds(limit, offset)
         if identity_key is not None and not re.fullmatch(r"[0-9a-f]{64}", identity_key):
@@ -786,7 +787,10 @@ AND NOT EXISTS (SELECT 1 FROM access_control.observation_blocks b
                 groups.setdefault((row["project"], subject_key, row["predicate"]), set()).add(
                     row["value"]
                 )
-        rows = prepared
+        # Observation filtering must not hide conflicts with other observations.
+        rows = [
+            r for r in prepared if observation_id is None or r["observation_id"] == observation_id
+        ]
         items = []
         for row in rows[offset : offset + limit]:
             item = dict(row)

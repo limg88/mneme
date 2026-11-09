@@ -54,6 +54,11 @@ def main():
     reset.add_argument("scope_id")
     serve = commands.add_parser("serve")
     serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--open", action="store_true", help="Open the local UI with one-use login")
+    serve.add_argument(
+        "--allow-cloud", action="store_true", help="Enable Haiku chat, within budget"
+    )
+    serve.add_argument("--compose", default="docker/claude-probe/compose.yaml", type=Path)
     commands.add_parser("mcp")
     for name in ("sync", "schedule", "extract", "import-evidence"):
         sub = commands.add_parser(name)
@@ -107,8 +112,43 @@ def main():
             import uvicorn
 
             from .api import create_app
+            from .chat import Chat
 
-            uvicorn.run(create_app(store), host="127.0.0.1", port=args.port, access_log=False)
+            chat_worker = None
+            if args.allow_cloud:
+                ledger = (
+                    Path(existing_budget)
+                    if existing_budget
+                    else args.compose.resolve().parents[2] / ".local/control/budget.sqlite3"
+                )
+                if not ledger.is_file():
+                    raise RuntimeError("Existing spending ledger required; no chat budget created")
+                chat_worker = DockerClaude(
+                    args.compose, store.directory / "runs", "haiku", 180, budget=Budget(ledger)
+                )
+                store.set_runtime_policy("budget_file", str(ledger.resolve()))
+                print(
+                    "Chat Haiku: consumes corporate Claude quota; shared spending ledger.",
+                    file=sys.stderr,
+                )
+            import secrets
+            import threading
+            import webbrowser
+
+            launch_key = secrets.token_urlsafe(32) if args.open else None
+            if launch_key:
+                # The one-use key is exchanged for an HttpOnly session cookie. Never
+                # expose the long-lived API bearer in HTML, browser storage or URLs.
+                threading.Timer(
+                    1, webbrowser.open, args=[f"http://127.0.0.1:{args.port}/connect/{launch_key}"]
+                ).start()
+            print(f"Mneme: http://127.0.0.1:{args.port}", file=sys.stderr)
+            uvicorn.run(
+                create_app(store, chat=Chat(store, chat_worker), launch_key=launch_key),
+                host="127.0.0.1",
+                port=args.port,
+                access_log=False,
+            )
         elif args.command == "mcp":
             from .mcp_server import create_server
 
