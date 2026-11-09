@@ -1,0 +1,21 @@
+{
+  "model": "haiku",
+  "interval_seconds": 900,
+  "timeout_seconds": 240,
+  "targets": [
+    {
+      "source": "microsoft365",
+      "source_id": "DRIVE_ID/ITEM_ID",
+      "source_url": "https://example.sharepoint.com/document",
+      "project": "pilot"
+    },
+    {
+      "source": "jira",
+      "source_id": "PROJECT-123",
+      "cloud_id": "CLOUD_ID",
+      "source_url": "https://example.atlassian.net/browse/PROJECT-123",
+      "project": "pilot"
+    }
+  ],
+  "local_paths": []
+}

@@ -1,0 +1,30 @@
+{
+  "model": "haiku",
+  "interval_seconds": 900,
+  "timeout_seconds": 240,
+  "max_cloud_calls_per_sync": 6,
+  "targets": [],
+  "local_paths": [],
+  "scopes": [
+    {
+      "source": "jira",
+      "project": "pilot",
+      "project_key": "PROJECT",
+      "cloud_id": "CLOUD_ID",
+      "base_url": "https://example.atlassian.net",
+      "page_size": 10,
+      "max_pages_per_sync": 1,
+      "overlap_seconds": 86400,
+      "reconcile_seconds": 604800
+    },
+    {
+      "source": "sharepoint",
+      "project": "pilot",
+      "folder_url": "https://example.sharepoint.com/sites/work/Documents/SelectedFolder",
+      "page_size": 10,
+      "max_pages_per_sync": 1,
+      "overlap_seconds": 86400,
+      "reconcile_seconds": 604800
+    }
+  ]
+}

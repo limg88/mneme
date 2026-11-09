@@ -1,0 +1,16 @@
+{
+  "targets": [],
+  "scopes": [],
+  "local_paths": [],
+  "local_scopes": [
+    {
+      "root": "/PERCORSO/CARTELLA/SELEZIONATA",
+      "project": "pilot",
+      "exclude_globs": ["archivio/**", "~$*", "**/~$*"],
+      "max_files_per_sync": 50
+    }
+  ],
+  "local_model": "qwen3:8b",
+  "max_local_sections_per_sync": 2,
+  "interval_seconds": 900
+}

@@ -1,0 +1,11 @@
+# Contenuti aziendali acquisiti nelle prove; non pubblicare nel repository.
+/prova-acquisizione/
+/prova-acquisizione-docker/
+/.local/
+/.venv/
+/.uv-cache/
+/dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/

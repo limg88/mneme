@@ -1,0 +1,66 @@
+name: brain-scraping-claude-probe
+
+services:
+  worker:
+    build:
+      context: .
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 4g
+    cpus: 2
+    depends_on:
+      egress:
+        condition: service_healthy
+    networks:
+      - isolated
+    dns:
+      - 127.0.0.1
+    environment:
+      DISABLE_AUTOUPDATER: "1"
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+      CLAUDE_CODE_DISABLE_ARTIFACT: "1"
+      HTTP_PROXY: http://egress:8080
+      HTTPS_PROXY: http://egress:8080
+      NO_PROXY: localhost,127.0.0.1
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    volumes:
+      - work-account-home:/home/node
+      - ../../prova-acquisizione-docker:/work
+      - ./guard.py:/probe/guard.py:ro
+
+  egress:
+    image: node:24-bookworm-slim
+    user: node
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.25
+    command: [node, /proxy/egress-proxy.mjs]
+    volumes:
+      - ./egress-proxy.mjs:/proxy/egress-proxy.mjs:ro
+    networks:
+      - isolated
+      - default
+    healthcheck:
+      test: [CMD, node, -e, "const s=require('node:net').connect(8080,'127.0.0.1');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+
+networks:
+  isolated:
+    internal: true
+
+volumes:
+  work-account-home:
+    name: brain-scraping-claude-work-account
