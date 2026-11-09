@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Mneme — La memoria del tuo lavoro</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Mneme, pagina iniziale"><span class="brand-mark">m<span>·</span></span><span>mneme<span class="brand-caption">WORK MEMORY</span></span></a>
+    <div class="header-actions"><span id="connection" class="connection"><i></i>Connessione…</span><button id="new-chat" class="quiet" type="button">＋ <span>Nuova conversazione</span></button></div>
+  </header>
+
+  <main id="main">
+    <section id="welcome" class="welcome">
+      <div class="eyebrow"><span class="tiny-star">✳</span> IL TUO LAVORO, CON UN FILO LOGICO</div>
+      <h1>Le decisioni passano.<br><em>La memoria resta.</em></h1>
+      <p class="intro">Ritrova cosa avete deciso, ricostruisci il perché.<br>Ogni risposta ti riporta alle sue fonti.</p>
+      <div class="memory-orbit" aria-hidden="true"><span></span><span></span><span></span><b>m·</b><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i></div>
+    </section>
+
+    <section id="conversation" class="conversation" aria-label="Conversazione" aria-live="polite"></section>
+
+    <section class="compose-area">
+      <form id="question-form" class="composer">
+        <label class="sr-only" for="question">Interroga la memoria</label>
+        <textarea id="question" rows="2" maxlength="2000" placeholder="Cosa abbiamo deciso su…" required></textarea>
+        <div class="compose-toolbar"><label class="project-label"><span>◈</span><select id="project" aria-label="Filtra per progetto"><option value="">Tutti i progetti</option></select></label><div class="send-area"><span class="keyboard-hint">Invio per chiedere</span><button id="send" type="submit" aria-label="Invia domanda">↗</button></div></div>
+      </form>
+      <div id="examples" class="examples" aria-label="Domande di esempio">
+        <button type="button" data-question="Quali decisioni risultano per DEMO e quali motivazioni sono documentate?" class="example"><span class="example-icon">↗</span><span>Ricostruisci una decisione<small>Cosa è stato scelto, e perché</small></span><b>↗</b></button>
+        <button type="button" data-question="Quali proposte per EXAMPLEB risultano ancora da confermare?" class="example"><span class="example-icon">◇</span><span>Separa proposte e decisioni<small>Le idee non sono ancora impegni</small></span><b>↗</b></button>
+        <button type="button" data-question="Quali cambiamenti delle scadenze DEMO sono documentati?" class="example"><span class="example-icon">◷</span><span>Segui il filo nel tempo<small>Come siamo arrivati fin qui</small></span><b>↗</b></button>
+      </div>
+      <p id="notice" class="notice" role="status">Haiku aziendale · Ogni domanda consuma quota del piano · Fonti già in memoria</p>
+      <div id="error" class="error hidden" role="alert"></div>
+      <form id="login" class="login hidden"><label for="token">Collega la memoria con il token API locale</label><div><input id="token" type="password" autocomplete="off" placeholder="Token dal file api-token" aria-label="Token API"><button type="submit" class="quiet">Collega →</button></div><small>Oppure avvia <code>work-memory serve --allow-cloud --open</code>. Il token resta solo in questa pagina.</small></form>
+    </section>
+  </main>
+
+  <footer><span><i class="status-dot"></i>MEMORIA LOCALE <span class="footer-separator">/</span> <span id="freshness">Copertura selezionata</span></span><span>Le fonti prima delle conclusioni.</span></footer>
+
+  <dialog id="evidence-dialog" aria-labelledby="evidence-title"><div class="evidence-top"><span class="eyebrow">DENTRO LA FONTE</span><button id="close-evidence" class="quiet" aria-label="Chiudi fonte">✕</button></div><h2 id="evidence-title"></h2><p id="evidence-meta" class="evidence-meta"></p><div id="evidence-content"></div></dialog>
+</body>
+</html>
